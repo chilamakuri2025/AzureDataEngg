@@ -1,0 +1,11 @@
+I am a Data Engineer with over 3 years of experience specializing in building and maintaining data solutions using Databricks, 
+Azure Data Factory, ADLS Blob Storage, PySpark, SQL, and Python. I have developed scalable data pipelines to automate the ingestion, 
+transformation, and loading of large datasets in both batch and real-time. My expertise includes optimizing SQL queries for high-performance 
+data extraction and transformation, as well as creating efficient data workflows in Azure Data Factory.
+
+I have a strong focus on utilizing PySpark within Databricks for large-scale data processing and leveraging ADLS Blob Storage for efficient data management.
+ Additionally, I automate data transformations using Python, ensuring pipeline efficiency and reducing manual intervention.
+
+Throughout my career, I've collaborated with cross-functional teams, managed code versioning with GitHub, and tracked tasks using Jira.
+I have also optimized Databricks clusters for better resource utilization and cost management while maintaining high data quality and accuracy across
+ various layers of the architecture.
