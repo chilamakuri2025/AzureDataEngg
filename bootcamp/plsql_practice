@@ -1,0 +1,157 @@
+--simple select into statement 
+ DECLARE 
+   emp_name VARCHAR2(50);
+ BEGIN
+   SELECT first_name INTO emp_name FROM hr.employees WHERE employee_id ='101';
+   dbms_output.put_line('employee name: ' || emp_name);
+ END;
+ /
+--  selecting mutiple colums into variables
+ DECLARE 
+    emp_name VARCHAR2(50);
+    emp_salary NUMBER;
+BEGIN
+    SELECT first_name, salary INTO emp_name,emp_salary
+    FROM hr.employees 
+    WHERE employee_id = 102;
+
+    DBMS_OUTPUT.PUT_LINE('Employee Name: ' || emp_name || ',salary: ' || emp_salary);
+END;
+/
+
+--handling no data found
+DECLARE
+
+emp_salary NUMBER;
+
+BEGIN
+    BEGIN
+        select salary INTO emp_salary FROM hr.EMPLOYEES where employee_id = 999;
+        EXCEPTION
+        WHEN no_data_found THEN
+        DBMS_OUTPUT.put_line('no employee found with this id');
+    END;
+END;
+
+
+
+        /
+--using select with case statement
+DECLARE
+emp_status VARCHAR2(20);
+BEGIN
+    SELECT 
+       CASE
+         WHEN salary > 50000 then 'High Salary' 
+         else 'low salry'
+    end
+    INTO emp_status 
+    from hr.EMPLOYEES where employee_id = 103;
+    dbms_output.PUT_LINE('employee status: ' || emp_status);
+    END;
+
+    --using count()with select into
+
+        DECLARE
+    total_employees NUMBER;  -- Corrected variable name
+BEGIN
+    SELECT COUNT(*) INTO total_employees FROM hr.employees; -- Fixed variable name
+
+    DBMS_OUTPUT.PUT_LINE('total Employees: ' || total_employees); -- Fixed variable name
+END;
+/
+--fetching max salary
+DECLARE
+max_salary NUMBER;
+BEGIN
+    SELECT MAX(salary) INTO max_salary from HR.EMPLOYEES;
+    DBMS_OUTPUT.PUT_LINE('highest salary: ' || max_salary);
+    END;
+    /
+--fetching min salary
+DECLARE
+min_salary NUMBER;
+BEGIN
+    SELECT MIN(salary) INTO min_salary from HR.EMPLOYEES;
+    DBMS_OUTPUT.PUT_LINE('lowest salary: ' || min_salary);
+    END;
+    /
+--fetching avg_salary
+DECLARE
+avg_salary NUMBER;
+BEGIN
+    SELECT avg(salary) INTO avg_salary from hr.EMPLOYEES;
+    DBMS_OUTPUT.PUT_LINE('Average Salary: ' || avg_salary);
+    END;
+    --fetching employee name using sub query
+    DECLARE
+    emp_name VARCHAR2(50);
+    BEGIN
+        select first_name INTO emp_name from hr.EMPLOYEES
+        where employee_id = (select MIN(employee_id) from hr.EMPLOYEES);
+        dbms_output.PUT_LINE('first employee:' || emp_name);
+        end;
+
+    --fetching data using exits
+    DECLARE
+    emp_exists varchar2(10);
+    BEGIN
+        SELECT 
+        CASE
+             WHEN EXISTS (select 1 from hr.EMPLOYEES WHERE employee_id = 105) then 'YES'
+        ELSE 'NO'
+        END
+        into emp_exists
+        from dual;
+
+        dbms_output.PUT_LINE('employee exists: ' || emp_exists);
+        END;
+
+    --selecting employee with hihest salary
+    DECLARE
+    emp_name VARCHAR2(50);
+    BEGIN
+        SELECT first_name into emp_name from hr.EMPLOYEES
+        where SALARY = (SELECT MAX(salary) from hr.EMPLOYEES);
+        dbms_output.PUT_LINE('hihest paid employee: ' || emp_name);
+    END;
+    --fetching deptname
+    DECLARE
+    dept_name VARCHAR2(50);
+    BEGIN
+        SELECT department_name into dept_name from hr.DEPARTMENTS WHERE DEPARTMENT_ID = 10;
+        DBMS_OUTPUT.PUT_LINE('department:' || dept_name);
+        END;
+
+        --fetching employee count in a department
+        DECLARE
+        emp_count NUMBER;
+        BEGIN
+            SELECT count(*) into emp_count from HR.employees where department_id = 20;
+            DBMS_OUTPUT.PUT_LINE('employess in department 20:' || emp_count);
+            END;
+
+    --fecthing sum of all salaries
+    DECLARE
+    total_salary NUMBER;
+    BEGIN
+        SELECT SUM(salary) into total_salary from hr.EMPLOYEES;
+        DBMS_OUTPUT.PUT_LINE('Total Salaries: ' || total_salary);
+        END;
+--fetching employee joining date
+DECLARE
+hire_date DATE;
+BEGIN
+    SELECT hire_date into hire_date from hr.EMPLOYEES where EMPLOYEE_ID = 107;
+    DBMS_OUTPUT.PUT_LINE('employee hire_date: ' || hire_date);
+    END;
+
+--selecting second highest salary
+DECLARE
+second_highest_salary NUMBER;
+BEGIN
+    select DISTINCT salary into second_highest_salary from hr.employess
+    where salary < (SELECT max(salary) from hr.EMPLOYEES)
+    order by  salary desc fetch first 1 ROW only;
+    DBMS_OUTPUT.PUT_LINE('second highest salary: ' || second_highest_salary);
+    END;
