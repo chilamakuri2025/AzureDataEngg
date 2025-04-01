@@ -1,0 +1,186 @@
+sequence
+
+--if table is there means it will drop
+--begin
+--execute IMMEDIATE 'DROP TABLE employees_seq_demo';
+--EXCEPTION WHEN OTHERS THEN NULL;
+--end;
+
+--if sequence is there means it will drop
+BEGIN
+EXECUTE IMMEDIATE 'DROP sequence emp_seq';
+EXCEPTION WHEN OTHERS THEN NULL;
+end;
+
+---create employee table
+
+--create employee table
+--create table employee_seq_demo(
+--emp_id NUMBER PRIMARY KEY,
+--emp_name VARCHAR2(100),
+--salary NUMBER,
+--dept_id NUMBER
+--);
+
+
+--create sequence
+create sequence emp_seq
+start WITH 1001
+INCREMENT by 1
+nocache
+NOCYCLE;
+
+
+1.basic insert using nextval
+insert into employee_seq_demo values (emp_seq.nextval, 'ALICE', 4000, 10);
+
+--using sequence in plsql
+declare
+v_id number;
+begin
+v_id := emp_seq.nextval;
+insert into employee_seq_demo values(v_id, 'david', 44400, 40);
+end;
+
+--bulk insert with sequence loop
+--begin
+--for i in 1..5 LOOP
+--insert into employee_seq_demo values(emp_seq.nextval, 'BulkEmp_' || i, 30000 + i * 1000, 60);
+--end loop;
+--end;
+--select * from employee_seq_demo
+
+-6.before insert trigger to auto-generate emp_id  ERROR
+--create or replace trigger trg_auto_id_seq
+--before insert on employee_seq_demo
+--for each row when (new.emp_id is null)
+--begin
+--:new.emp_id := emp_nextval;
+--end;
+
+
+--8.merge using sequence
+
+merge into employee_seq_demo e using (select 'helen' as name, 55000 as sal from dual) s
+on (e.emp_name = s.name)
+when not matched then 
+insert (emp_id, emp_name, salary, dept_id) values (emp_seq.nextval, s.name, s.sal, 70);
+
+select * from employee_seq_demo
+
+
+--9 function to return next emp_id
+create or replace function get_next_emp_id return number is
+begin
+return emp_seq.nextval;
+end;
+
+
+--10.use function for inserting
+insert into employee_seq_demo values (get_next_emp_id(), 'ian', 48000, 80);
+
+
+--11. temp table insert with sequence
+begin
+execute immediate 'drop table temp_ids';
+exception when others then null;
+end;
+
+
+--create global temporary table temp_ids (
+--id number
+--) on commit preserve rows;
+
+insert into temp_ids values (emp_seq.nextval);
+select * from temp_ids
+
+
+--declare
+--new_id number;
+--begin
+--select  into new_id from dual;
+--dbms_output.put_line('current sequence value: ' || emp_seq.currval);
+--end;
+--select * from temp_ids
+
+
+
+
+--13.procedure to insert employee with sequence 
+create or replace procedure add_employee(p_emp_name varchar2, p_salary number, p_dept_id number) is
+begin
+insert into employee_seq_demo (emp_id, emp_name, salary, dept_id) values (emp_seq.nextval, p_emp_name, p_salary, p_dept_id);
+end;
+
+select * from employee_seq_demo;
+set serveroutput on;
+exec add_employee ('ram', 40000, 26)
+begin
+    add_employee('jack', 49000, 90);
+    end;
+    
+    select * from employee_seq_demo;
+
+-14.select into sequence
+declare
+new_id number;
+begin
+select emp_seq.nextval into new_id from dual;
+insert into employee_seq_demo (emp_id, emp_name, salary, dept_id) values (new_id, 'kelly', 46000, 100);
+end;
+
+--15.simulated order number
+--declare
+--order_id number;
+--begin
+--order_id := emp_seq.nextval;
+--dbms_output.put_line('generated order id: ' || order_id);
+--end;
+--select * from employee_seq_demo;
+
+
+
+--16 pagination style query
+--select * from employee_seq_demo where emp_id between 1005 and 1010;
+
+
+--17 insert from collection using sequence
+declare
+type emp_names_t is table of varchar2(100);
+name_emp_names_t emp_names_t := emp_names_t('liam', 'mia', 'noah');
+begin
+for i in 1..name_emp_names_t.count loop
+insert into employee_seq_demo(emp_id, emp_name, salary, dept_id) values (emp_seq.nextval, name_emp_names_t(i), 5000 + i * 1000, 110);
+end loop;
+END;
+
+--18.reset the sequence to a new strating point   doubt
+--begin
+--execute immediate 'drop sequence employee_seq';
+--execute immediate 'create sequence emp_seq start with 2001 increment by 1';
+--end;    
+--
+--
+--INSERT INTO employee_seq_demo VALUES (emp_seq.NEXTVAL, 'Olivia', 52000, 120);
+--select * from employee_seq_demo;
+
+
+
+
+--19 insert select with sequence
+--insert into employee_seq_demo (emp_id, emp_name, salary, dept_id)
+--select emp_seq.nextval, 'Auto_' || LEVEL, 30000 + LEVEL * 1000, 130
+--from dual connect by level <= 3;
+--
+--select * from employee_seq_demo;
+
+
+
+--20 json like-insert 
+declare
+new_id number := emp_seq.nextval;
+begin
+insert into employee_seq_demo values (new_id, 'json_insert_' ||  new_id, 60000, 140);
+end;
+
+select * from employee_seq_demo order by emp_id;

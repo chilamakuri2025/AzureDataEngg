@@ -1,0 +1,371 @@
+Procedures Tasks
+
+1.  printing hello world
+
+CREATE OR REPLACE PROCEDURE print_hello IS
+BEGIN
+DBMS_OUTPUT.PUT_LINE('HELLO, WORLD');
+END;      --(Creating Procedure)
+               
+SET SERVEROUTPUT ON;    --(Server out enabled)
+
+EXEC print_hello; (for printing outpt)
+
+
+-- PROCEDURE 2: Add Two Numbers
+
+CREATE OR REPLACE PROCEDURE adding_numbers(a in number, b in number) IS
+result number;
+BEGIN
+result := a + b;
+DBMS_OUTPUT.PUT_LINE('sum: ' || result);
+END;
+
+SET SERVEROUTPUT ON
+EXEC ADDING_NUMBERS(2,3)
+
+
+-- PROCEDURE 3: Insert a Record into Employees Table
+
+
+CREATE OR REPLACE PROCEDURE Insert_employee (p_id in number, p_name in VARCHAR2) IS
+BEGIN
+INSERT into employee(emp_id, emp_name) values (p_id, p_name);
+commit;
+DBMS_OUTPUT.PUT_LINE('Employee Inserted Succesfully');
+END;
+SET SERVEROUTPUT ON;
+EXEC Insert_employee (103,'ramu');
+select * from employee
+
+
+-- PROCEDURE 4: Update Salary of an Employee
+CREATE OR REPLACE PROCEDURE Update_Salary(p_id in number, new_salary in number) IS
+BEGIN
+update emp_salary SET emp_salary = new_salary where emp_id = p_id;
+commit;
+END;
+create table emp_salary (emp_id number,
+emp_name VARCHAR2(50),
+emp_salary number);
+insert into emp_salary (emp_id, emp_name, emp_salary) values (101, 'krishna', 5000);
+insert into emp_salary (emp_id, emp_name, emp_salary) values (102, 'ammu', 9000);
+select * from emp_salary
+set serveroutput on
+exec emp_salary (101,7000);
+
+
+
+---- PROCEDURE 5: Delete Employee by ID
+create or replace procedure employee_delete(p_id in number) is
+begin
+delete from employee where emp_id = p_id;
+commit;
+end;
+set serveroutput on
+exec employee_delete(101);
+select * from employee
+
+
+-- PROCEDURE 6: Fetch Employee Name by ID
+-- PROCEDURE 6: Fetch Employee Name by ID
+CREATE OR REPLACE PROCEDURE Fetching_emp_name(p_id IN NUMBER) IS
+v_name emp_salary.emp_name%TYPE;
+begin
+select emp_name into v_name from emp_salary where emp_id = p_id;
+dbms_output.put_line('emp_name: ' || v_name);
+end;
+set serveroutput on;
+exec Fetching_emp_name(102);
+select * from emp_salary
+
+
+
+-- PROCEDURE 7: Loop Through 1 to 5
+CREATE OR REPLACE PROCEDURE loop_example IS
+BEGIN
+  FOR i IN 1..5 LOOP
+    DBMS_OUTPUT.PUT_LINE('Iteration: ' || i);
+  END LOOP;
+END;
+/
+
+
+another way
+CREATE OR REPLACE PROCEDURE loop_example(p_itterations in number) IS
+BEGIN
+ for i in 1..p_itterations loop
+ dbms_output.put_line('itteration: ' || i);
+ end loop;
+ end;
+ set serveroutput on;
+ exec loop_example(10);
+
+
+
+---procedure 8 : count from table
+
+create or replace procedure count_employee IS
+total number;
+begin
+select count(*) into total from employee;
+DBMS_OUTPUT.PUT_LINE('Total employees: ' || total);
+END;
+set serveroutput on;
+exec count_employee
+
+
+count by giving input as table name
+
+
+create or replace procedure count_employee (p_table_name VARCHAR2)IS
+total number;
+p_sql varchar2(3000);
+begin
+p_sql := 'select count(*)  from ' || p_table_name;
+execute immediate p_sql into total;
+DBMS_OUTPUT.PUT_LINE('Total employees: ' || p_table_name || ': ' || total);
+END;
+set serveroutput on;
+exec count_employee('emp_salary');
+
+
+
+
+
+-- PROCEDURE 9: Raise Custom Exception
+
+create or replace procedure raise_exception is
+e_custom exception;
+BEGIN
+RAISE e_custom;
+EXCEPTION
+when e_custom THEN
+dbms_output.put_line('custom exception raised');
+end;
+set serverout on;
+exec raise_exception;
+
+
+----10.display current date
+create or replace procedure show_date is
+BEGIN
+dbms_output.put_line('today''s Date: ' || SYSDATE);
+end;
+set serveroutput on;
+exec show_date;
+
+--procedure 11: use of loop
+create or replace procedure while_loop_example IS
+  i number := 1;
+BEGIN
+WHILE i <= 5 LOOP
+   DBMS_OUTPUT.PUT_LINE('value: ' || i);
+   i := i + 1;
+  END LOOP;
+END;
+set serveroutput on;
+exec while_loop_example
+
+--by passing value
+create or replace procedure while_loop_example(p_max_value in number) IS
+  i number := 1;
+BEGIN
+WHILE i <= p_max_value LOOP
+   DBMS_OUTPUT.PUT_LINE('value: ' || i);
+   i := i + 1;
+  END LOOP;
+END;
+set serveroutput on;
+exec while_loop_example(10)
+
+
+--procedure 12: case statement
+create or replace procedure grade_case(marks IN Number) IS
+BEGIN
+CASE
+   WHEN marks >= 90 THEN DBMS_OUTPUT.PUT_LINE('Grade: A');
+   WHEN marks >= 75 THEN DBMS_OUTPUT.PUT_LINE('Grade: B');
+   WHEN marks >= 60 THEN DBMS_OUTPUT.PUT_LINE('Grade: C');
+   ELSE DBMS_OUTPUT.PUT_LINE('Grade: D');
+   end CASE;
+   end;
+   set serveroutput on;
+   exec grade_case(90);
+
+
+--procedure 13  sum of numbers in a table
+   create or replace procedure sum_salaries IS
+   total NUMBER;
+   BEGIN
+   select SUM(emp_salary) into total from emp_salary;
+   DBMS_OUTPUT.PUT_LINE('total salary: ' || total);
+   end;
+   set serveroutput on;
+   exec sum_salaries;
+--   select * from emp_salary
+--another way by giving input
+CREATE OR REPLACE PROCEDURE sum_salaries (P_TABLE_NAME in varchar2)IS
+  total NUMBER;
+  p_sql varchar2(4000);
+BEGIN
+    p_sql := 'SELECT SUM(emp_salary) FROM ' || P_TABLE_NAME;
+    execute immediate p_sql into total;
+    DBMS_OUTPUT.PUT_LINE('Total Salary: ' || total);
+END;
+set serveroutput on;
+exec sum_salaries('emp_salary');
+
+procedure14     (DOUBT)
+CREATE OR REPLACE PROCEDURE dept_emp_count IS
+  CURSOR dept_cursor IS 
+    SELECT dept_id FROM departments;
+
+  v_dept_id departments.dept_id%TYPE;
+  v_count NUMBER;
+BEGIN
+  
+  FOR rec IN dept_cursor LOOP
+    v_dept_id := rec.dept_id;
+
+    
+    SELECT COUNT(*) INTO v_count 
+    FROM IT_Employees 
+    WHERE dept_id = v_dept_id;
+
+   
+    DBMS_OUTPUT.PUT_LINE('Dept ' || v_dept_id || ' has ' || v_count || ' employees');
+  END LOOP;
+END;
+
+
+
+
+
+procedure 15  storing error log ina table
+
+
+create or replace PROCEDURE log_error(p_msg in varchar2) is
+begin
+insert into error_log (log_message, log_date) values (p_msg, SYSDATE);
+commit;
+end;
+
+CREATE table error_log (
+log_message VARCHAR2(100),
+log_date DATE
+);
+SET SERVEROUTPUT ON;
+EXEC log_error('timedout');  
+
+set serveroutput on;
+exec error_log('timedout', sysdate)
+select * from error_log
+
+EXEC log_error('loginerror');
+
+
+
+--procedure 16 validating age_input
+create or replace PROCEDURE validate_age(p_age in NUMBER) IS
+BEGIN
+if p_age < 0 THEN
+raise_application_error(-20001, 'invalid age provided');
+ELSE
+dbms_output.put_line('age is valid');
+end if;
+end;
+
+set SERVEROUTPUT ON;
+exec validate_age(-25)
+
+
+--procedure 17
+create or replace procedure reverse_string(p_str in varchar) IS
+v_rev varchar2(20) := '';
+BEGIN
+for i in reverse 1..length(p_str) LOOP
+v_rev := v_rev || substr(p_str, i, 1);
+end loop;
+dbms_output.put_line('Reverse String: ' || v_rev);
+end;
+set serveroutput on;
+exec reverse_string('hello world');
+
+
+
+--procedure 18 finding max salary
+--create or replace procedure max_salary IS
+--v_max NUMBER;
+--BEGIN
+--select max(emp_salary) into v_max from emp_salary;
+--dbms_output.put_line('emp_salary: ' || v_max);
+--end;
+--set serveroutput on;
+--exec max_salary
+--by passing table name
+--create or replace procedure max_salary (p_table_name in varchar2) IS
+--v_max NUMBER;
+--p_sql varchar2(50);
+--BEGIN
+--p_sql := 'select max(emp_salary) from ' || p_table_name;
+--execute immediate p_sql into v_max;
+--dbms_output.put_line('max_emp_salary from ' || p_table_name || ': ' || v_max);
+--end;
+--select * from emp_salary
+--set serveroutput on;
+--exec max_salary('emp_salary')
+
+
+--procedure 19 log login details
+create or replace procedure log_login(p_user in VARCHAR2) IS
+BEGIN
+insert into log_audit (username, logintime) values ('raju', SYSDATE);
+commit;
+end;
+create TABLE log_audit 
+(
+username VARCHAR2(100),
+logintime DATE
+);
+
+another way by passing value
+
+create or replace procedure log_login(p_user in VARCHAR2) IS
+BEGIN
+insert into log_audit (username, logintime) values (p_user, SYSDATE);
+commit;
+end;
+
+set serveroutput on;
+exec log_login('raju')
+select * from log_audit;
+
+
+--procedure 20 get employees ina dept
+create or replace procedure get_employee_by_dept(p_dept_id in number) IS
+CURSOR emp_cursor IS select emp_name from emp_salary where dept_id = p_dept_id;
+BEGIN
+for rec in emp_cursor loop
+DBMS_OUTPUT.PUT_LINE('employee: ' || rec.emp_name);
+end loop;
+end;
+set serveroutput on;
+exec get_employee_by_dept(1)
+
+select * from emp_salary
+alter table emp_salary
+add (dept_id number);
+
+update  emp_salary set dept_id = 1 where emp_id = 101;
+update  emp_salary set dept_id = 2 where emp_id = 102;
+
+
+
+
+
+
+
+
+
+
